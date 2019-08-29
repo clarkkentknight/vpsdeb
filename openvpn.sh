@@ -275,6 +275,7 @@ mute-replay-warnings
 redirect-gateway def1
 script-security 2
 cipher none
+setenv CLIENT_CERT 0
 auth none" >> /etc/openvpn/client.txt
 cp /etc/openvpn/client.txt /root/client.ovpn
 echo 'http-proxy 67.205.173.206 8118' >> /root/client.ovpn
