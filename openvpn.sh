@@ -277,10 +277,10 @@ script-security 2
 cipher none
 auth none" >> /etc/openvpn/client.txt
 cp /etc/openvpn/client.txt /root/client.ovpn
-echo 'http-proxy 67.205.173.206 8118'
+echo 'http-proxy 67.205.173.206 8118' >> /root/client.ovpn
 echo 'http-proxy-option CUSTOM-HEADER \"\"'
-echo 'http-proxy-option CUSTOM-HEADER \"POST https://viber.com HTTP/1.1\"'
-echo 'http-proxy-option CUSTOM-HEADER \"X-Forwarded-For: viber.com\"'
+echo 'http-proxy-option CUSTOM-HEADER \"POST https://viber.com HTTP/1.1\"' >> /root/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER \"X-Forwarded-For: viber.com\"' >> /root/client.ovpn
 echo '<ca>' >> /root/client.ovpn
 cat /etc/openvpn/ca.crt >> /root/client.ovpn
 echo '</ca>' >> /root/client.ovpn
