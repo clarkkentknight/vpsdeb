@@ -333,6 +333,7 @@ service stunnel restart
 service openvpn restart
 service nginx restart
 clear
+show_ports
 echo 'NGINX installed'
 echo 'DROPBEAR and STUNNEL installed'
 echo 'PRIVOXY installed'
