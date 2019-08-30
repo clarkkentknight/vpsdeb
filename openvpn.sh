@@ -329,6 +329,7 @@ echo '[dropbear]' >> /etc/stunnel/stunnel.conf
 echo 'accept = 0.0.0.0:443' >> /etc/stunnel/stunnel.conf
 echo 'connect = '"$IP"':550' >> /etc/stunnel/stunnel.conf
 service privoxy restart
+service dropbear restart
 service stunnel restart
 service openvpn restart
 service nginx restart
