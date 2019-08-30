@@ -1,3 +1,0 @@
-#!/bin/bash
-clear
-mysql -uroot -pMaricaris24 -e "use SPanel;update user set saldo='20';"
