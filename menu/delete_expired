@@ -1,5 +1,4 @@
 #!/bin/bash
-# Script by : _Dreyannz_
 datenow=$(date +%s)
 for user in $(awk -F: '{print $1}' /etc/passwd); do
 expdate=$(chage -l $user|awk -F: '/Account expires/{print $2}')
@@ -13,7 +12,7 @@ userdel -r $user  &> /dev/null
 done
 clear
 echo -e ""
-echo -e " == BonvScript == " | lolcat -a
+echo -e " ==Shadow046== "
 echo -e ""
 echo -e "  All Expired Users Has Been Deleted"
 echo -e ""
