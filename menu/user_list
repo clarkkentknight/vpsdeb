@@ -9,8 +9,8 @@ else
 fi
 clear
 echo -e ""
-echo -e " == BonvScript == " | lolcat -a
-echo -e "  Users list " | lolcat
+echo -e " == Shadow046 == "
+echo -e "  Users list "
 echo -e " Username     Expiration"
 echo " "
 while read Checklist
