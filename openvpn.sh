@@ -68,6 +68,7 @@ sudo apt-get -y install webmin
 apt-get -y install stunnel4 dropbear
 openssl genrsa -out key.pem 4096
 openssl req -new -x509 -key key.pem -out cert.pem -days 1095
+cat key.pem cert.pem > /etc/stunnel/stunnel.pem
 	echo ""
 	echo "What port do you want OpenVPN to listen to?"
 	echo "   1) Default: 1194"
@@ -307,7 +308,6 @@ echo 'keep-alive-timeout 5' >> /etc/privoxy/config
 echo 'tolerate-pipelining 1' >> /etc/privoxy/config
 echo 'socket-timeout 300' >> /etc/privoxy/config
 echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
-cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
