@@ -1,4 +1,4 @@
 #!/bin/bash
-apt update
-apt - y install nginx
-cp -fp /root/client.ovpn /var/www/html/
+sudo apt update
+sudo apt - y install nginx
+sudo cp -fp /root/client.ovpn /var/www/html/
