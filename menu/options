@@ -2,7 +2,7 @@
 
 clear
 echo -e ""
-echo -e " == BonvScript == " | lolcat -a
+echo -e " == Shadow046 == "
 echo -e ""
 echo -e "   [1] MultiLogin"
 echo -e "   [2] Restart Services"
