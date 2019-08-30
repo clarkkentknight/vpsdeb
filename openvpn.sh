@@ -315,12 +315,26 @@ echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge cont
 wget http://www.webmin.com/jcameron-key.asc
 sudo apt-key add jcameron-key.asc
 sudo apt-get update
-sudo apt-get -y install webmin 
+sudo apt-get -y install webmin
+apt-get -y install stunnel4 dropbear
+openssl genrsa -out key.pem 4096
+openssl req -new -x509 -key key.pem -out cert.pem -days 1095
+cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
+sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
+sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+echo 'pid =/var/run/stunnel.pid' > /etc/stunnel/stunnel.conf
+echo 'cert = /etc/stunnel/stunnel.pem' >> /etc/stunnel/stunnel.conf
+echo '[dropbear]' >> /etc/stunnel/stunnel.conf
+echo 'accept = 0.0.0.0:443' >> /etc/stunnel/stunnel.conf
+echo 'connect = "$IP":550' >> /etc/stunnel/stunnel.conf
 service privoxy restart
+service stunnel restart
 service openvpn restart
 service nginx restart
 clear
 echo 'NGINX installed'
+echo 'DROPBEAR and STUNNEL installed'
 echo 'PRIVOXY installed'
 echo 'WEBMIN installed'
 echo 'OPENVPN server installed'
