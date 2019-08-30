@@ -314,7 +314,7 @@ echo 'socket-timeout 300' >> /etc/privoxy/config
 echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
 sudo apt -y install nginx
 echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
-echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib >> /etc/apt/sources.list
+echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
 wget http://www.webmin.com/jcameron-key.asc
 sudo apt-key add jcameron-key.asc
 sudo apt-get update
