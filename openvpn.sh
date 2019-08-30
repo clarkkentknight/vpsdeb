@@ -143,7 +143,7 @@ function installQuestions () {
 	fi
 }
 function installOpenVPN () {
-sudo apt -y install nginx
+
 	if [[ $AUTO_INSTALL == "y" ]]; then
 		# Set default choices so that no questions will be asked.
 		APPROVE_INSTALL=${APPROVE_INSTALL:-y}
@@ -157,6 +157,7 @@ sudo apt -y install nginx
 	installQuestions
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
+		sudo apt -y install nginx
 		apt-get -y install ca-certificates gnupg
 		apt-get install -y openvpn iptables openssl wget ca-certificates curl
 	local version="3.0.4"
