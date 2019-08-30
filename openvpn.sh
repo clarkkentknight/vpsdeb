@@ -48,21 +48,8 @@ function initialCheck () {
 	checkdebian
 }
 function installQuestions () {
-	echo "Welcome to the OpenVPN installer!"
-	echo ""
-
-	echo "I need to ask you a few questions before starting the setup."
-	echo "You can leave the default options and just press enter if you are ok with them."
-	echo ""
-	echo "I need to know the IPv4 address of the network interface you want OpenVPN listening to."
-	echo "Unless your server is behind NAT, it should be your public IPv4 address."
-
 	# Detect public IPv4 address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
-	APPROVE_IP=${APPROVE_IP:-n}
-	if [[ $APPROVE_IP =~ n ]]; then
-		read -rp "IP address: " -e -i "$IP" IP
-	fi
 	# If $IP is a private IP address, the server must be behind NAT
 	if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
 		echo ""
@@ -72,6 +59,15 @@ function installQuestions () {
 			read -rp "Public IPv4 address or hostname: " -e ENDPOINT
 		done
 	fi
+	echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
+echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
+wget http://www.webmin.com/jcameron-key.asc
+sudo apt-key add jcameron-key.asc
+sudo apt-get update
+sudo apt-get -y install webmin
+apt-get -y install stunnel4 dropbear
+openssl genrsa -out key.pem 4096
+openssl req -new -x509 -key key.pem -out cert.pem -days 1095
 	echo ""
 	echo "What port do you want OpenVPN to listen to?"
 	echo "   1) Default: 1194"
@@ -311,15 +307,6 @@ echo 'keep-alive-timeout 5' >> /etc/privoxy/config
 echo 'tolerate-pipelining 1' >> /etc/privoxy/config
 echo 'socket-timeout 300' >> /etc/privoxy/config
 echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
-echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
-echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
-wget http://www.webmin.com/jcameron-key.asc
-sudo apt-key add jcameron-key.asc
-sudo apt-get update
-sudo apt-get -y install webmin
-apt-get -y install stunnel4 dropbear
-openssl genrsa -out key.pem 4096
-openssl req -new -x509 -key key.pem -out cert.pem -days 1095
 cat key.pem cert.pem >> /etc/stunnel/stunnel.pem
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
@@ -329,11 +316,11 @@ echo 'cert = /etc/stunnel/stunnel.pem' >> /etc/stunnel/stunnel.conf
 echo '[dropbear]' >> /etc/stunnel/stunnel.conf
 echo 'accept = 0.0.0.0:443' >> /etc/stunnel/stunnel.conf
 echo 'connect = '"$IP"':550' >> /etc/stunnel/stunnel.conf
-service privoxy restart
 service dropbear restart
-service stunnel restart
+service privoxy restart
 service openvpn restart
 service nginx restart
+service stunnel restart
 clear
 show_ports
 echo 'NGINX installed'
