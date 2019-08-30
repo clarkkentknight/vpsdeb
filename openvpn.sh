@@ -143,6 +143,7 @@ function installQuestions () {
 	fi
 }
 function installOpenVPN () {
+sudo apt -y install nginx
 	if [[ $AUTO_INSTALL == "y" ]]; then
 		# Set default choices so that no questions will be asked.
 		APPROVE_INSTALL=${APPROVE_INSTALL:-y}
@@ -277,17 +278,14 @@ script-security 2
 cipher none
 setenv CLIENT_CERT 0
 auth none" >> /etc/openvpn/client.txt
-cp /etc/openvpn/client.txt /root/client.ovpn
-echo 'http-proxy' $IP $PORTS >> /root/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER ""' >> /root/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /root/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /root/client.ovpn
-echo '<ca>' >> /root/client.ovpn
-cat /etc/openvpn/ca.crt >> /root/client.ovpn
-echo '</ca>' >> /root/client.ovpn
-	echo 'The configuration file is available at /root/client.ovpn'
-	echo 'Download the .ovpn file and import it in your OpenVPN client.'
-	
+cp /etc/openvpn/client.txt /var/www/html/client.ovpn
+echo 'http-proxy' $IP $PORTS >> /var/www/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER ""' >> /var/www/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /var/www/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /var/www/html/client.ovpn
+echo '<ca>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
+echo '</ca>' >> /var/www/html/client.ovpn
 # Privoxy
 apt-get update -y && apt-get upgrade -y && apt autoclean -y && apt autoremove
 apt-get -y install privoxy
@@ -312,7 +310,6 @@ echo 'keep-alive-timeout 5' >> /etc/privoxy/config
 echo 'tolerate-pipelining 1' >> /etc/privoxy/config
 echo 'socket-timeout 300' >> /etc/privoxy/config
 echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
-sudo apt -y install nginx
 echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
 echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
 wget http://www.webmin.com/jcameron-key.asc
@@ -322,6 +319,14 @@ sudo apt-get install webmin
 service privoxy restart
 service openvpn restart
 service nginx restart
+clear
+echo 'NGINX installed'
+echo 'PRIVOXY installed'
+echo 'WEBMIN installed'
+echo 'OPENVPN server installed'
+echo 'The configuration file is available at /var/www/html/client.ovpn'
+echo 'Or http://your-ip/client.ovpn
+echo 'Download the .ovpn file and import it in your OpenVPN client.'
 	exit 0
 
 }
