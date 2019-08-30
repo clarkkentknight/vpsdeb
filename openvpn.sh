@@ -327,7 +327,7 @@ echo 'pid =/var/run/stunnel.pid' > /etc/stunnel/stunnel.conf
 echo 'cert = /etc/stunnel/stunnel.pem' >> /etc/stunnel/stunnel.conf
 echo '[dropbear]' >> /etc/stunnel/stunnel.conf
 echo 'accept = 0.0.0.0:443' >> /etc/stunnel/stunnel.conf
-echo 'connect = "$IP":550' >> /etc/stunnel/stunnel.conf
+echo 'connect = '"$IP"':550' >> /etc/stunnel/stunnel.conf
 service privoxy restart
 service stunnel restart
 service openvpn restart
