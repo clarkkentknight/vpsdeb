@@ -317,10 +317,11 @@ echo '[dropbear]' >> /etc/stunnel/stunnel.conf
 echo 'accept = 0.0.0.0:443' >> /etc/stunnel/stunnel.conf
 echo 'connect = '"$IP"':550' >> /etc/stunnel/stunnel.conf
 service dropbear restart
+service sshd restart
 service privoxy restart
 service openvpn restart
 service nginx restart
-service stunnel restart
+service stunnel4 restart
 clear
 show_ports
 echo 'NGINX installed'
