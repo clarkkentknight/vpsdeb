@@ -61,6 +61,13 @@ function installQuestions () {
 	fi
 	echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
 echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
+wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw"
+if [ "$OS" == "x86_64" ]; then
+  wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw64"
+fi
+sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
+chmod +x /usr/bin/badvpn-udpgw
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 wget http://www.webmin.com/jcameron-key.asc
 sudo apt-key add jcameron-key.asc
 sudo apt-get update
@@ -310,12 +317,27 @@ echo 'socket-timeout 300' >> /etc/privoxy/config
 echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
+echo "/bin/false" >> /etc/shells
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-echo 'pid =/var/run/stunnel.pid' > /etc/stunnel/stunnel.conf
-echo 'cert = /etc/stunnel/stunnel.pem' >> /etc/stunnel/stunnel.conf
-echo '[dropbear]' >> /etc/stunnel/stunnel.conf
-echo 'accept = 0.0.0.0:443' >> /etc/stunnel/stunnel.conf
-echo 'connect = '"$IP"':550' >> /etc/stunnel/stunnel.conf
+cat > /etc/stunnel/stunnel.conf <<-END
+
+sslVersion = all
+pid = /var/run/stunnel.pid
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+client = no
+
+[openvpn]
+accept = 587
+connect = 127.0.0.1:1194
+cert = /etc/stunnel/stunnel.pem
+
+[dropbear]
+accept = 443
+connect = $IP:550
+cert = /etc/stunnel/stunnel.pem
+
+END
 service dropbear restart
 service sshd restart
 service privoxy restart
