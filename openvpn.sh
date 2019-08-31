@@ -17,7 +17,7 @@ function checkdebian () {
 		source /etc/os-release
 
 		if [[ "$ID" == "debian" || "$ID" == "raspbian" ]]; then
-			if [[ ! $VERSION_ID =~ (9) ]]; then
+			if [[ ! $VERSION_ID =~ (8|9|10) ]]; then
 				echo ' Your version of Debian is not supported.'
 				echo ""
 				echo "However, if you're using Debian >= 9 or unstable/testing then you can continue."
@@ -235,20 +235,18 @@ cat > /etc/stunnel/stunnel.conf <<-END
 
 sslVersion = all
 pid = /var/run/stunnel.pid
+cert = /etc/stunnel/stunnel.pem
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
 client = no
 
-[openvpn]
+[openssh]
 accept = 444
-connect = 127.0.0.1:1194
-cert = /etc/stunnel/stunnel.pem
+connect = 127.0.0.1:225
 
 [dropbear]
 accept = 443
-connect = $IP:550
-cert = /etc/stunnel/stunnel.pem
-
+connect = 127.0.0.1:550
 END
 }
 
@@ -285,6 +283,14 @@ service sshd restart
 service privoxy restart
 service openvpn restart
 service stunnel4 restart
+}
+
+function setbanner () {
+cp -fp issue.net /etc/
+sed -i 's@#Banner@Banner@g' /etc/ssh/sshd_config
+sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
+service ssh restart
+service dropbear restart
 }
 
 function installQuestions () {
