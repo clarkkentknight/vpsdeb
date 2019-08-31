@@ -50,6 +50,7 @@ function initialCheck () {
 
 function copymenu () {
 cp menu/* /usr/local/sbin/
+chmod +x /usr/local/sbin/*
 }
 
 function updatesoure () {
