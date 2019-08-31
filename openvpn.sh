@@ -286,7 +286,7 @@ service stunnel4 restart
 }
 
 function setbanner () {
-cp -fp issue.net /etc/
+cat issue.net > /etc/issue.net
 sed -i 's@#Banner@Banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 service ssh restart
