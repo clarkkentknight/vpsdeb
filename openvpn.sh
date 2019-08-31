@@ -288,7 +288,8 @@ service stunnel4 restart
 function setbanner () {
 cat banner > /etc/issue.net
 cp banner /etc/
-sed -i 's@#Banner[[:space:]]none""@Banner /etc/banner"@g' /etc/ssh/sshd_config
+sed -i 's@#Banner""@Banner"@g' /etc/ssh/sshd_config
+sed -i 's@#none""@/etc/banner"@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 service ssh restart
 service dropbear restart
