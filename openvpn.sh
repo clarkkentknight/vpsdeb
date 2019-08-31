@@ -161,7 +161,7 @@ function installOpenVPN () {
 	installQuestions
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
-		apt-get install -y openvpn iptables openssl wget ca-certificates curl gnupg nginx php7.0-fpm  privoxy squid3 vnstat ufw build-essential fail2ban zip -y
+		apt-get install -y openvpn iptables openssl wget ca-certificates curl gnupg nginx php7.0-fpm  privoxy squid3 vnstat ufw build-essential -y
 	# set time GMT +8
 	ln -fs /usr/share/zoneinfo/Asia/Manila /etc/localtime
 	# disable ipv6
@@ -358,7 +358,6 @@ END
 service nginx start
 service php7.0-fpm start
 service vnstat restart
-service fail2ban restart
 service dropbear restart
 service sshd restart
 service privoxy restart
