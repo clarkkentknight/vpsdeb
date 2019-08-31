@@ -416,4 +416,5 @@ echo 'OPENVPN server installed'
 echo 'The configuration file is available at /var/www/html/client.ovpn'
 echo 'Or http://your-ip/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
+history -c
 exit 0
