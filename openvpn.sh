@@ -184,7 +184,8 @@ function installOpenVPN () {
 	./easyrsa --batch sign-req server server
 	cp pki/issued/server.crt /etc/openvpn/
 	./easyrsa gen-dh
-	cp pki/dh.pem /etc/openvpn
+	cp pki/dh.pem /etc/openvpn/
+	
 	echo "port $PORT" > /etc/openvpn/server.conf
 	echo "proto $PROTOCOL" >> /etc/openvpn/server.conf
 	echo "dev tun
