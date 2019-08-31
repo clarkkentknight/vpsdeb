@@ -47,8 +47,246 @@ function initialCheck () {
 	fi
 	checkdebian
 }
+
+function copymenu () {
+cp menu/* /usr/local/sbin/
+}
+
+function updatesoure () {
+echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
+echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
+}
+
+function BadVPN () {
+wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw"
+if [ "$OS" == "x86_64" ]; then
+  wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw64"
+fi
+sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
+chmod +x /usr/bin/badvpn-udpgw
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
+}
+
+function webmin () {
+wget http://www.webmin.com/jcameron-key.asc
+sudo apt-key add jcameron-key.asc
+sudo apt-get update
+sudo apt-get -y install webmin
+}
+
+function dropssl () {
+apt-get -y install stunnel4 dropbear
+openssl genrsa -out key.pem 4096
+openssl req -new -x509 -key key.pem -out cert.pem -days 1095
+cat key.pem cert.pem > /etc/stunnel/stunnel.pem
+}
+
+function endropstun () {
+sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
+sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
+echo "/bin/false" >> /etc/shells
+sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+}
+
+function settime () {
+ln -fs /usr/share/zoneinfo/Asia/Manila /etc/localtime
+}
+
+function certandkey () {
+local version="3.0.4"
+	wget https://github.com/OpenVPN/easy-rsa/releases/download/v${version}/EasyRSA-${version}.tgz
+	tar xzf EasyRSA-${version}.tgz
+	mv EasyRSA-${version} /etc/openvpn/easy-rsa
+	chown -R root:root /etc/openvpn/easy-rsa/
+	rm -f EasyRSA-${version}.tgz
+cd /etc/openvpn/easy-rsa/
+	cp vars.example vars
+	cat addtovars >> vars
+	./easyrsa init-pki
+	./easyrsa --batch build-ca nopass
+	cp pki/ca.crt /etc/openvpn/
+	./easyrsa --batch gen-req server nopass
+	cp pki/private/server.key /etc/openvpn/
+	cp pki/reqs/server.req /etc/openvpn/
+	./easyrsa --batch sign-req server server
+	cp pki/issued/server.crt /etc/openvpn/
+	./easyrsa gen-dh
+	cp pki/dh.pem /etc/openvpn/
+cd ~/openvpndeb/
+}
+
+function serverconf () {
+echo "port $PORT" > /etc/openvpn/server.conf
+echo "proto $PROTOCOL" >> /etc/openvpn/server.conf
+	echo "dev tun
+ca ca.crt
+cert server.crt
+key server.key
+dh dh.pem
+verify-client-cert none
+username-as-common-name
+plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
+server 10.8.0.0 255.255.255.0
+key-direction 0
+ifconfig-pool-persist ipp.txt
+push \"redirect-gateway def1 bypass-dhcp\"
+push \"dhcp-option DNS 8.8.8.8\"
+push \"dhcp-option DNS 8.8.4.4\"
+push \"route-method exe\"
+push \"route-delay 2\"
+socket-flags TCP_NODELAY
+push \"socket-flags TCP_NODELAY\"
+keepalive 10 120
+comp-lzo
+user nobody
+group nogroup
+persist-key
+persist-tun
+status openvpn-status.log
+log openvpn.log
+verb 3
+ncp-disable
+cipher none
+auth none" >> /etc/openvpn/server.conf
+}
+
+function disableipv6 () {
+echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
+}
+
+function setiptables () {
+mkdir /etc/iptables
+	echo "#!/bin/sh
+iptables -t nat -I POSTROUTING 1 -s 10.8.0.0/24 -o $NIC -j MASQUERADE
+iptables -I INPUT 1 -i tun0 -j ACCEPT
+iptables -I FORWARD 1 -i $NIC -o tun0 -j ACCEPT
+iptables -I FORWARD 1 -i tun0 -o $NIC -j ACCEPT
+iptables -I INPUT 1 -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT" > /etc/iptables/add-openvpn-rules.sh
+	echo "#!/bin/sh
+iptables -t nat -D POSTROUTING -s 10.8.0.0/24 -o $NIC -j MASQUERADE
+iptables -D INPUT -i tun0 -j ACCEPT
+iptables -D FORWARD -i $NIC -o tun0 -j ACCEPT
+iptables -D FORWARD -i tun0 -o $NIC -j ACCEPT
+iptables -D INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT" > /etc/iptables/rm-openvpn-rules.sh
+	chmod +x /etc/iptables/add-openvpn-rules.sh
+	chmod +x /etc/iptables/rm-openvpn-rules.sh
+	ufw allow ssh
+	ufw allow $PORT/tcp
+	sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
+	sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
+	echo "[Unit]
+Description=iptables rules for OpenVPN
+Before=network-online.target
+Wants=network-online.target
+[Service]
+Type=oneshot
+ExecStart=/etc/iptables/add-openvpn-rules.sh
+ExecStop=/etc/iptables/rm-openvpn-rules.sh
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
+	systemctl daemon-reload
+	systemctl enable iptables-openvpn
+	systemctl start iptables-openvpn
+}
+
+function clientovpn () {
+echo "client" > /etc/openvpn/client.txt
+	if [[ "$PROTOCOL" = 'udp' ]]; then
+		echo "proto udp" >> /etc/openvpn/client-template.txt
+	elif [[ "$PROTOCOL" = 'tcp' ]]; then
+		echo "proto tcp-client" >> /etc/openvpn/client-template.txt
+	fi
+	echo "remote $IP $PORT
+dev tun
+proto tcp
+auth-user-pass
+persist-key
+persist-tun
+pull
+resolv-retry infinite
+nobind
+user nobody
+comp-lzo
+remote-cert-tls server
+verb 3
+mute 2
+connect-retry 5 5
+connect-retry-max 8080
+mute-replay-warnings
+redirect-gateway def1
+script-security 2
+cipher none
+setenv CLIENT_CERT 0
+auth none" >> /etc/openvpn/client.txt
+cp /etc/openvpn/client.txt /var/www/html/client.ovpn
+echo 'http-proxy' $IP $PORTS >> /var/www/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER ""' >> /var/www/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /var/www/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /var/www/html/client.ovpn
+echo '<ca>' >> /var/www/html/client.ovpn
+cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
+echo '</ca>' >> /var/www/html/client.ovpn
+}
+
+function stunconf () {
+cat > /etc/stunnel/stunnel.conf <<-END
+
+sslVersion = all
+pid = /var/run/stunnel.pid
+socket = l:TCP_NODELAY=1
+socket = r:TCP_NODELAY=1
+client = no
+
+[openvpn]
+accept = 444
+connect = 127.0.0.1:1194
+cert = /etc/stunnel/stunnel.pem
+
+[dropbear]
+accept = 443
+connect = $IP:550
+cert = /etc/stunnel/stunnel.pem
+
+END
+}
+
+function privoxconfig () {
+echo 'user-manual /usr/share/doc/privoxy/user-manual' > /etc/privoxy/config
+echo 'confdir /etc/privoxy' >> /etc/privoxy/config
+echo 'logdir /var/log/privoxy' >> /etc/privoxy/config
+echo 'filterfile default.filter' >> /etc/privoxy/config
+echo 'logfile logfile' >> /etc/privoxy/config
+echo 'listen-address 0.0.0.0:'"$PORTS" >> /etc/privoxy/config
+echo 'toggle 1' >> /etc/privoxy/config
+echo 'enable-remote-toggle 0' >> /etc/privoxy/config
+echo 'enable-remote-http-toggle 0' >> /etc/privoxy/config
+echo 'enable-edit-actions 0' >> /etc/privoxy/config
+echo 'enforce-blocks 0' >> /etc/privoxy/config
+echo 'buffer-limit 4096' >> /etc/privoxy/config
+echo 'enable-proxy-authentication-forwarding 1' >> /etc/privoxy/config
+echo 'forwarded-connect-retries 1' >> /etc/privoxy/config
+echo 'accept-intercepted-requests 1' >> /etc/privoxy/config
+echo 'allow-cgi-request-crunching 1' >> /etc/privoxy/config
+echo 'split-large-forms 0' >> /etc/privoxy/config
+echo 'keep-alive-timeout 5' >> /etc/privoxy/config
+echo 'tolerate-pipelining 1' >> /etc/privoxy/config
+echo 'socket-timeout 300' >> /etc/privoxy/config
+echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
+}
+
+function restartall () {
+service nginx start
+service php7.0-fpm start
+service vnstat restart
+service dropbear restart
+service sshd restart
+service privoxy restart
+service openvpn restart
+service stunnel4 restart
+}
+
 function installQuestions () {
-	cp menu/* /usr/local/sbin/
 chmod +x /usr/local/sbin/*
 # Detect public IPv4 address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
@@ -61,23 +299,6 @@ chmod +x /usr/local/sbin/*
 			read -rp "Public IPv4 address or hostname: " -e ENDPOINT
 		done
 	fi
-	echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
-echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
-wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw"
-if [ "$OS" == "x86_64" ]; then
-  wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw64"
-fi
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
-chmod +x /usr/bin/badvpn-udpgw
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
-wget http://www.webmin.com/jcameron-key.asc
-sudo apt-key add jcameron-key.asc
-sudo apt-get update
-sudo apt-get -y install webmin
-apt-get -y install stunnel4 dropbear
-openssl genrsa -out key.pem 4096
-openssl req -new -x509 -key key.pem -out cert.pem -days 1095
-cat key.pem cert.pem > /etc/stunnel/stunnel.pem
 	echo ""
 	echo "What port do you want OpenVPN to listen to?"
 	echo "   1) Default: 1194"
@@ -148,224 +369,42 @@ cat key.pem cert.pem > /etc/stunnel/stunnel.pem
 		read -n1 -r -p "Press any key to continue..."
 	fi
 }
-function installOpenVPN () {
 
-	if [[ $AUTO_INSTALL == "y" ]]; then
-		# Set default choices so that no questions will be asked.
-		APPROVE_INSTALL=${APPROVE_INSTALL:-y}
-		APPROVE_IP=${APPROVE_IP:-y}
-		PORT_CHOICE=${PORT_CHOICE:-1}
-		PROTOCOL_CHOICE=${PROTOCOL_CHOICE:-1}
-		CONTINUE=${CONTINUE:-y}
-		PUBLIC_IPV4=$(curl ifconfig.co)
-		ENDPOINT=${ENDPOINT:-$PUBLIC_IPV4}
-	fi
-	installQuestions
+function installall () {
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
 		apt-get install -y openvpn iptables openssl wget ca-certificates curl gnupg nginx php7.0-fpm  privoxy squid3 vnstat ufw build-essential -y
-	# set time GMT +8
-	ln -fs /usr/share/zoneinfo/Asia/Manila /etc/localtime
-	# disable ipv6
-	echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
-	local version="3.0.4"
-	wget https://github.com/OpenVPN/easy-rsa/releases/download/v${version}/EasyRSA-${version}.tgz
-	tar xzf EasyRSA-${version}.tgz
-	mv EasyRSA-${version} /etc/openvpn/easy-rsa
-	chown -R root:root /etc/openvpn/easy-rsa/
-	rm -f EasyRSA-${version}.tgz
-
-	cd /etc/openvpn/easy-rsa/
-	cp vars.example vars
-	cat addtovars >> vars
-	./easyrsa init-pki
-	./easyrsa --batch build-ca nopass
-	cp pki/ca.crt /etc/openvpn/
-	./easyrsa --batch gen-req server nopass
-	cp pki/private/server.key /etc/openvpn/
-	cp pki/reqs/server.req /etc/openvpn/
-	./easyrsa --batch sign-req server server
-	cp pki/issued/server.crt /etc/openvpn/
-	./easyrsa gen-dh
-	cp pki/dh.pem /etc/openvpn/
-	echo "port $PORT" > /etc/openvpn/server.conf
-echo "proto $PROTOCOL" >> /etc/openvpn/server.conf
-	echo "dev tun
-ca ca.crt
-cert server.crt
-key server.key
-dh dh.pem
-verify-client-cert none
-username-as-common-name
-plugin /usr/lib/openvpn/openvpn-plugin-auth-pam.so login
-server 10.8.0.0 255.255.255.0
-key-direction 0
-ifconfig-pool-persist ipp.txt
-push \"redirect-gateway def1 bypass-dhcp\"
-push \"dhcp-option DNS 8.8.8.8\"
-push \"dhcp-option DNS 8.8.4.4\"
-push \"route-method exe\"
-push \"route-delay 2\"
-socket-flags TCP_NODELAY
-push \"socket-flags TCP_NODELAY\"
-keepalive 10 120
-comp-lzo
-user nobody
-group nogroup
-persist-key
-persist-tun
-status openvpn-status.log
-log openvpn.log
-verb 3
-ncp-disable
-cipher none
-auth none" >> /etc/openvpn/server.conf
 	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
 	sysctl --system
-	cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
+}
+
+initialCheck
+installQuestions
+installall
+settime
+copymenu
+updatesoure
+BadVPN
+webmin
+dropssl
+endropstun
+certandkey
+serverconf
+disableipv6
+setiptables
+clientovpn
+stunconf
+privoxconfig
+restartall
+cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
 	sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn\@.service
 	systemctl daemon-reload
 	systemctl restart openvpn@server
 	systemctl enable openvpn@server
-	mkdir /etc/iptables
-	echo "#!/bin/sh
-iptables -t nat -I POSTROUTING 1 -s 10.8.0.0/24 -o $NIC -j MASQUERADE
-iptables -I INPUT 1 -i tun0 -j ACCEPT
-iptables -I FORWARD 1 -i $NIC -o tun0 -j ACCEPT
-iptables -I FORWARD 1 -i tun0 -o $NIC -j ACCEPT
-iptables -I INPUT 1 -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT" > /etc/iptables/add-openvpn-rules.sh
-	echo "#!/bin/sh
-iptables -t nat -D POSTROUTING -s 10.8.0.0/24 -o $NIC -j MASQUERADE
-iptables -D INPUT -i tun0 -j ACCEPT
-iptables -D FORWARD -i $NIC -o tun0 -j ACCEPT
-iptables -D FORWARD -i tun0 -o $NIC -j ACCEPT
-iptables -D INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT" > /etc/iptables/rm-openvpn-rules.sh
-	chmod +x /etc/iptables/add-openvpn-rules.sh
-	chmod +x /etc/iptables/rm-openvpn-rules.sh
-	ufw allow ssh
-	ufw allow $PORT/tcp
-	sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
-	sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
-	echo "[Unit]
-Description=iptables rules for OpenVPN
-Before=network-online.target
-Wants=network-online.target
-[Service]
-Type=oneshot
-ExecStart=/etc/iptables/add-openvpn-rules.sh
-ExecStop=/etc/iptables/rm-openvpn-rules.sh
-RemainAfterExit=yes
-[Install]
-WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
-	systemctl daemon-reload
-	systemctl enable iptables-openvpn
-	systemctl start iptables-openvpn
-	if [[ "$ENDPOINT" != "" ]]; then
-		IP=$ENDPOINT
-	fi
-	echo "client" > /etc/openvpn/client.txt
-	if [[ "$PROTOCOL" = 'udp' ]]; then
-		echo "proto udp" >> /etc/openvpn/client-template.txt
-	elif [[ "$PROTOCOL" = 'tcp' ]]; then
-		echo "proto tcp-client" >> /etc/openvpn/client-template.txt
-	fi
-	echo "remote $IP $PORT
-dev tun
-proto tcp
-auth-user-pass
-persist-key
-persist-tun
-pull
-resolv-retry infinite
-nobind
-user nobody
-comp-lzo
-remote-cert-tls server
-verb 3
-mute 2
-connect-retry 5 5
-connect-retry-max 8080
-mute-replay-warnings
-redirect-gateway def1
-script-security 2
-cipher none
-setenv CLIENT_CERT 0
-auth none" >> /etc/openvpn/client.txt
-cp /etc/openvpn/client.txt /var/www/html/client.ovpn
-echo 'http-proxy' $IP $PORTS >> /var/www/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER ""' >> /var/www/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /var/www/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /var/www/html/client.ovpn
-echo '<ca>' >> /var/www/html/client.ovpn
-cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
-echo '</ca>' >> /var/www/html/client.ovpn
-# Privoxy
-# install badvpn
-wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw"
-if [ "$OS" == "x86_64" ]; then
-  wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw64"
-fi
-sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
-chmod +x /usr/bin/badvpn-udpgw
-screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
-echo 'user-manual /usr/share/doc/privoxy/user-manual' > /etc/privoxy/config
-echo 'confdir /etc/privoxy' >> /etc/privoxy/config
-echo 'logdir /var/log/privoxy' >> /etc/privoxy/config
-echo 'filterfile default.filter' >> /etc/privoxy/config
-echo 'logfile logfile' >> /etc/privoxy/config
-echo 'listen-address 0.0.0.0:'"$PORTS" >> /etc/privoxy/config
-echo 'toggle 1' >> /etc/privoxy/config
-echo 'enable-remote-toggle 0' >> /etc/privoxy/config
-echo 'enable-remote-http-toggle 0' >> /etc/privoxy/config
-echo 'enable-edit-actions 0' >> /etc/privoxy/config
-echo 'enforce-blocks 0' >> /etc/privoxy/config
-echo 'buffer-limit 4096' >> /etc/privoxy/config
-echo 'enable-proxy-authentication-forwarding 1' >> /etc/privoxy/config
-echo 'forwarded-connect-retries 1' >> /etc/privoxy/config
-echo 'accept-intercepted-requests 1' >> /etc/privoxy/config
-echo 'allow-cgi-request-crunching 1' >> /etc/privoxy/config
-echo 'split-large-forms 0' >> /etc/privoxy/config
-echo 'keep-alive-timeout 5' >> /etc/privoxy/config
-echo 'tolerate-pipelining 1' >> /etc/privoxy/config
-echo 'socket-timeout 300' >> /etc/privoxy/config
-echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
-# install dropbear
-sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
-sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
-echo "/bin/false" >> /etc/shells
-sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
-# add eth0 to vnstat
 vnstat -u -i eth0
 # install libxml-parser
 apt-get install libxml-parser-perl -y -f
-cat > /etc/stunnel/stunnel.conf <<-END
-
-sslVersion = all
-pid = /var/run/stunnel.pid
-socket = l:TCP_NODELAY=1
-socket = r:TCP_NODELAY=1
-client = no
-
-[openvpn]
-accept = 587
-connect = 127.0.0.1:1194
-cert = /etc/stunnel/stunnel.pem
-
-[dropbear]
-accept = 443
-connect = $IP:550
-cert = /etc/stunnel/stunnel.pem
-
-END
-service nginx start
-service php7.0-fpm start
-service vnstat restart
-service dropbear restart
-service sshd restart
-service privoxy restart
-service openvpn restart
-service stunnel4 restart
 clear
 show_ports
 echo 'NGINX installed'
@@ -376,8 +415,4 @@ echo 'OPENVPN server installed'
 echo 'The configuration file is available at /var/www/html/client.ovpn'
 echo 'Or http://your-ip/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
-	exit 0
-
-}
-initialCheck
-installOpenVPN
+exit 0
