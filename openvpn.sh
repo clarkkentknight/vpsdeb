@@ -161,9 +161,11 @@ function installOpenVPN () {
 	installQuestions
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
-		sudo apt -y install nginx
-		apt-get -y install ca-certificates gnupg
-		apt-get install -y openvpn iptables openssl wget ca-certificates curl
+		apt-get install -y openvpn iptables openssl wget ca-certificates curl gnupg nginx php7.0-fpm  privoxy squid3 vnstat ufw build-essential fail2ban zip -y
+	# set time GMT +8
+	ln -fs /usr/share/zoneinfo/Asia/Manila /etc/localtime
+	# disable ipv6
+	echo 1 > /proc/sys/net/ipv6/conf/all/disable_ipv6
 	local version="3.0.4"
 	wget https://github.com/OpenVPN/easy-rsa/releases/download/v${version}/EasyRSA-${version}.tgz
 	tar xzf EasyRSA-${version}.tgz
@@ -238,6 +240,10 @@ iptables -D FORWARD -i tun0 -o $NIC -j ACCEPT
 iptables -D INPUT -i $NIC -p $PROTOCOL --dport $PORT -j ACCEPT" > /etc/iptables/rm-openvpn-rules.sh
 	chmod +x /etc/iptables/add-openvpn-rules.sh
 	chmod +x /etc/iptables/rm-openvpn-rules.sh
+	ufw allow ssh
+	ufw allow $PORT/tcp
+	sed -i 's|DEFAULT_INPUT_POLICY="DROP"|DEFAULT_INPUT_POLICY="ACCEPT"|' /etc/default/ufw
+	sed -i 's|DEFAULT_FORWARD_POLICY="DROP"|DEFAULT_FORWARD_POLICY="ACCEPT"|' /etc/default/ufw
 	echo "[Unit]
 Description=iptables rules for OpenVPN
 Before=network-online.target
@@ -292,8 +298,14 @@ echo '<ca>' >> /var/www/html/client.ovpn
 cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
 echo '</ca>' >> /var/www/html/client.ovpn
 # Privoxy
-apt-get update -y && apt-get upgrade -y && apt autoclean -y && apt autoremove
-apt-get -y install privoxy
+# install badvpn
+wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw"
+if [ "$OS" == "x86_64" ]; then
+  wget -O /usr/bin/badvpn-udpgw "https://github.com/johndesu090/AutoScriptDebianStretch/raw/master/Files/Plugins/badvpn-udpgw64"
+fi
+sed -i '$ i\screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300' /etc/rc.local
+chmod +x /usr/bin/badvpn-udpgw
+screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 echo 'user-manual /usr/share/doc/privoxy/user-manual' > /etc/privoxy/config
 echo 'confdir /etc/privoxy' >> /etc/privoxy/config
 echo 'logdir /var/log/privoxy' >> /etc/privoxy/config
@@ -315,10 +327,15 @@ echo 'keep-alive-timeout 5' >> /etc/privoxy/config
 echo 'tolerate-pipelining 1' >> /etc/privoxy/config
 echo 'socket-timeout 300' >> /etc/privoxy/config
 echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
+# install dropbear
 sed -i 's/NO_START=1/NO_START=0/g' /etc/default/dropbear
 sed -i 's/DROPBEAR_PORT=22/DROPBEAR_PORT=550/g' /etc/default/dropbear
 echo "/bin/false" >> /etc/shells
 sed -i 's/ENABLED=0/ENABLED=1/g' /etc/default/stunnel4
+# add eth0 to vnstat
+vnstat -u -i eth0
+# install libxml-parser
+apt-get install libxml-parser-perl -y -f
 cat > /etc/stunnel/stunnel.conf <<-END
 
 sslVersion = all
@@ -338,11 +355,14 @@ connect = $IP:550
 cert = /etc/stunnel/stunnel.pem
 
 END
+service nginx start
+service php7.0-fpm start
+service vnstat restart
+service fail2ban restart
 service dropbear restart
 service sshd restart
 service privoxy restart
 service openvpn restart
-service nginx restart
 service stunnel4 restart
 clear
 show_ports
