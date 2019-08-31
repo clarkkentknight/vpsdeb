@@ -48,7 +48,9 @@ function initialCheck () {
 	checkdebian
 }
 function installQuestions () {
-	# Detect public IPv4 address and pre-fill for the user
+	cp menu/* /usr/local/sbin/
+chmod +x /usr/local/sbin/*
+# Detect public IPv4 address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 	# If $IP is a private IP address, the server must be behind NAT
 	if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
@@ -172,6 +174,7 @@ function installOpenVPN () {
 	mv EasyRSA-${version} /etc/openvpn/easy-rsa
 	chown -R root:root /etc/openvpn/easy-rsa/
 	rm -f EasyRSA-${version}.tgz
+
 	cd /etc/openvpn/easy-rsa/
 	cp vars.example vars
 	cat addtovars >> vars
@@ -185,9 +188,8 @@ function installOpenVPN () {
 	cp pki/issued/server.crt /etc/openvpn/
 	./easyrsa gen-dh
 	cp pki/dh.pem /etc/openvpn/
-	
 	echo "port $PORT" > /etc/openvpn/server.conf
-	echo "proto $PROTOCOL" >> /etc/openvpn/server.conf
+echo "proto $PROTOCOL" >> /etc/openvpn/server.conf
 	echo "dev tun
 ca ca.crt
 cert server.crt
