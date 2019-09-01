@@ -78,7 +78,7 @@ sudo apt-get -y install webmin
 function dropssl () {
 apt-get -y install stunnel4 dropbear
 openssl genrsa -out key.pem 4096
-openssl req -new -x509 -key key.pem -out cert.pem -days 1095
+openssl req -new -x509 -key key.pem -out cert.pem -days 1095 -batch
 cat key.pem cert.pem > /etc/stunnel/stunnel.pem
 }
 
