@@ -426,6 +426,7 @@ echo 'DROPBEAR and STUNNEL installed'
 echo 'PRIVOXY installed'
 echo 'WEBMIN installed'
 echo 'OPENVPN server installed'
+cat /etc/banner
 echo 'The configuration file is available at /var/www/html/client.ovpn'
 echo 'Or http://'"$IP"'/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
