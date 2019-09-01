@@ -286,12 +286,15 @@ service stunnel4 restart
 service webmin restart
 }
 
-function setbanner () {
+function setall () {
 cat bann3r > /etc/issue.net
 cp banner /etc/
 sed -i 's@#Banner[[:space:]]none@Banner /etc/banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 sed -i 's@ssl=1@ssl=0@g' /etc/webmin/miniserv.conf
+sed -i 's@#Port[[:space:]]22@Port 22\nPort 225@g' /etc/ssh/sshd_config
+sed -i 's@#AddressFamily[[:space:]]any@AddressFamily inet@g' /etc/ssh/sshd_config
+sed -i 's@#ListenAddress[[:space:]]0@ListenAddress 0@g' /etc/ssh/sshd_config
 service ssh restart
 service dropbear restart
 }
@@ -404,7 +407,7 @@ setiptables
 clientovpn
 stunconf
 privoxconfig
-setbanner
+setall
 restartall
 cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
