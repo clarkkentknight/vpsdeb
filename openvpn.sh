@@ -50,7 +50,7 @@ function initialCheck () {
 
 function copymenu () {
 cp menu/* /usr/local/sbin/
-chmod +x /usr/local/sbin/
+chmod +x /usr/local/sbin/*
 }
 
 function updatesoure () {
@@ -297,7 +297,6 @@ service dropbear restart
 }
 
 function installQuestions () {
-chmod +x /usr/local/sbin/*
 # Detect public IPv4 address and pre-fill for the user
 	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
 	# If $IP is a private IP address, the server must be behind NAT
