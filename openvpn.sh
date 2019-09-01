@@ -283,6 +283,7 @@ service sshd restart
 service privoxy restart
 service openvpn restart
 service stunnel4 restart
+service webmin restart
 }
 
 function setbanner () {
@@ -290,6 +291,7 @@ cat banner > /etc/issue.net
 cp banner /etc/
 sed -i 's@#Banner[[:space:]]none@Banner /etc/banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
+sed -i 's@ssl=1@ssl=0@g' /etc/webmin/miniserv.conf
 service ssh restart
 service dropbear restart
 }
