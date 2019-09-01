@@ -251,27 +251,28 @@ END
 }
 
 function privoxconfig () {
-echo 'user-manual /usr/share/doc/privoxy/user-manual' > /etc/privoxy/config
-echo 'confdir /etc/privoxy' >> /etc/privoxy/config
-echo 'logdir /var/log/privoxy' >> /etc/privoxy/config
-echo 'filterfile default.filter' >> /etc/privoxy/config
-echo 'logfile logfile' >> /etc/privoxy/config
-echo 'listen-address 0.0.0.0:'"$PORTS" >> /etc/privoxy/config
-echo 'toggle 1' >> /etc/privoxy/config
-echo 'enable-remote-toggle 0' >> /etc/privoxy/config
-echo 'enable-remote-http-toggle 0' >> /etc/privoxy/config
-echo 'enable-edit-actions 0' >> /etc/privoxy/config
-echo 'enforce-blocks 0' >> /etc/privoxy/config
-echo 'buffer-limit 4096' >> /etc/privoxy/config
-echo 'enable-proxy-authentication-forwarding 1' >> /etc/privoxy/config
-echo 'forwarded-connect-retries 1' >> /etc/privoxy/config
-echo 'accept-intercepted-requests 1' >> /etc/privoxy/config
-echo 'allow-cgi-request-crunching 1' >> /etc/privoxy/config
-echo 'split-large-forms 0' >> /etc/privoxy/config
-echo 'keep-alive-timeout 5' >> /etc/privoxy/config
-echo 'tolerate-pipelining 1' >> /etc/privoxy/config
-echo 'socket-timeout 300' >> /etc/privoxy/config
-echo 'permit-access 0.0.0.0/0' "$IP" >> /etc/privoxy/config
+cat>>/etc/privoxy/config<<EOF
+user-manual /usr/share/doc/privoxy/user-manual
+confdir /etc/privoxy
+logdir /var/log/privoxy
+filterfile default.filter
+logfile logfile
+listen-address 0.0.0.0:$PORTS
+toggle 1
+enable-remote-toggle 0
+enable-remote-http-toggle 0
+enable-edit-actions 0
+enforce-blocks 0
+buffer-limit 4096
+enable-proxy-authentication-forwarding 1
+forwarded-connect-retries 1
+accept-intercepted-requests 1
+allow-cgi-request-crunching 1
+split-large-forms 0
+tolerate-pipelining 1
+socket-timeout 300
+permit-access 0.0.0.0/0 $IP
+EOF
 }
 
 function restartall () {
@@ -302,7 +303,8 @@ service dropbear restart
 
 function installQuestions () {
 # Detect public IPv4 address and pre-fill for the user
-	IP=$(ip addr | grep 'inet' | grep -v inet6 | grep -vE '127\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | head -1)
+	EXT_INT=$(cut -d' ' -f5 <(ip -4 route ls default))
+	IP=$(ip -4 addr ls $EXT_INT | head -2 | tail -1 | cut -d' ' -f6 | cut -d'/' -f1)
 	# If $IP is a private IP address, the server must be behind NAT
 	if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
 		echo ""
