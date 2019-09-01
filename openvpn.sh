@@ -427,7 +427,8 @@ echo 'PRIVOXY installed'
 echo 'WEBMIN installed'
 echo 'OPENVPN server installed'
 echo 'The configuration file is available at /var/www/html/client.ovpn'
-echo 'Or http://your-ip/client.ovpn'
+echo 'Or http://'"$IP"'/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
+echo 'Use menu to create ovpn accounts'
 history -c
 exit 0
