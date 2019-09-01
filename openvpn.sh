@@ -287,7 +287,7 @@ service webmin restart
 }
 
 function setbanner () {
-cat banner > /etc/issue.net
+cat bann3r > /etc/issue.net
 cp banner /etc/
 sed -i 's@#Banner[[:space:]]none@Banner /etc/banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
