@@ -278,7 +278,6 @@ EOF
 
 function restartall () {
 service nginx start
-service php7.0-fpm start
 service vnstat restart
 service dropbear restart
 service sshd restart
@@ -389,7 +388,7 @@ function installQuestions () {
 function installall () {
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
-		apt-get install -y openvpn iptables openssl wget ca-certificates curl gnupg nginx php7.0-fpm  privoxy squid3 vnstat ufw build-essential -y
+		apt-get install -y openvpn iptables openssl wget ca-certificates curl gnupg nginx privoxy squid3 vnstat ufw build-essential -y
 	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
 	sysctl --system
 }
