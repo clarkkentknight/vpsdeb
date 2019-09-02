@@ -288,9 +288,10 @@ service webmin restart
 }
 
 function setall () {
-cat bann3r > /etc/issue.net
-cat banner > /etc/motd
-cp banner /etc/
+rm /etc/issue.net
+cat ~/openvpndeb/bann3r > /etc/issue.net
+cat ~/openvpndeb/banner > /etc/motd
+cp ~/openvpndeb/banner /etc/
 sed -i 's@#Banner[[:space:]]none@Banner /etc/banner@g' /etc/ssh/sshd_config
 sed -i 's@DROPBEAR_BANNER=""@DROPBEAR_BANNER="/etc/issue.net"@g' /etc/default/dropbear
 sed -i 's@ssl=1@ssl=0@g' /etc/webmin/miniserv.conf
