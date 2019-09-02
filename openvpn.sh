@@ -404,7 +404,6 @@ BadVPN
 webmin
 dropssl
 endropstun
-certandkey
 serverconf
 disableipv6
 setiptables
@@ -412,6 +411,7 @@ clientovpn
 stunconf
 privoxconfig
 setall
+certandkey
 restartall
 cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
