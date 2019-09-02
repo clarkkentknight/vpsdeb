@@ -251,6 +251,7 @@ END
 }
 
 function privoxconfig () {
+rm -f /etc/privoxy/config
 cat>>/etc/privoxy/config<<EOF
 user-manual /usr/share/doc/privoxy/user-manual
 confdir /etc/privoxy
