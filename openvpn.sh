@@ -69,8 +69,6 @@ screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 }
 
 function webmin () {
-echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
-echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
 wget http://www.webmin.com/jcameron-key.asc
 sudo apt-key add jcameron-key.asc
 sudo apt-get update
