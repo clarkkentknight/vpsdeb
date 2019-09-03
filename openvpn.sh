@@ -277,7 +277,7 @@ EOF
 }
 
 function restartall () {
-service nginx start
+service nginx restart
 service vnstat restart
 service dropbear restart
 service sshd restart
