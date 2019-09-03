@@ -306,9 +306,11 @@ service dropbear restart
 function installQuestions () {
 # Detect public IPv4 address and pre-fill for the user
 	apt install -y sudo
-	EXT_INT=$(cut -d' ' -f5 <(ip -4 route ls default))
-	IP=$(ip -4 addr ls $EXT_INT | head -2 | tail -1 | cut -d' ' -f6 | cut -d'/' -f1)
-	# If $IP is a private IP address, the server must be behind NAT
+	#EXT_INT=$(cut -d' ' -f5 <(ip -4 route ls default))
+	#IP=$(ip -4 addr ls $EXT_INT | head -2 | tail -1 | cut -d' ' -f6 | cut -d'/' -f1)
+	IP=curl https://ipinfo.io/ip
+
+# If $IP is a private IP address, the server must be behind NAT
 	#if echo "$IP" | grep -qE '^(10\.|172\.1[6789]\.|172\.2[0-9]\.|172\.3[01]\.|192\.168)'; then
 		#echo ""
 		#echo "It seems this server is behind NAT. What is its public IPv4 address or hostname?"
