@@ -220,14 +220,14 @@ script-security 2
 cipher none
 setenv CLIENT_CERT 0
 auth none" >> /etc/openvpn/client.txt
-cp /etc/openvpn/client.txt /var/www/html/client.ovpn
-echo 'http-proxy' $IP $PORTS >> /var/www/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER ""' >> /var/www/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /var/www/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /var/www/html/client.ovpn
-echo '<ca>' >> /var/www/html/client.ovpn
-cat /etc/openvpn/ca.crt >> /var/www/html/client.ovpn
-echo '</ca>' >> /var/www/html/client.ovpn
+cp /etc/openvpn/client.txt /home/panel/html/client.ovpn
+echo 'http-proxy' $IP $PORTS >> /home/panel/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /home/panel/html/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /home/panel/html/client.ovpn
+echo '<ca>' >> /home/panel/html/client.ovpn
+cat /etc/openvpn/ca.crt >> /home/panel/html/client.ovpn
+echo '</ca>' >> /home/panel/html/client.ovpn
 }
 
 function stunconf () {
@@ -432,9 +432,10 @@ echo 'PRIVOXY installed'
 echo 'WEBMIN installed'
 echo 'OPENVPN server installed'
 cat /etc/banner
-echo 'The configuration file is available at /var/www/html/client.ovpn'
-echo 'Or http://'"$IP"'/client.ovpn'
+echo 'The configuration file is available at /home/panel/html/client.ovpn'
+echo 'Or http://'"$IP"':88/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
 echo 'Use menu to create ovpn accounts'
+echo 'OCS panel http://'"$IP"':88'
 history -c
 exit 0
