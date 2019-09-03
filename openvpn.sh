@@ -223,7 +223,7 @@ auth none" >> /etc/openvpn/client.txt
 mkdir -p /home/panel/html
 cp /etc/openvpn/client.txt /home/panel/html/client.ovpn
 echo 'http-proxy' $IP $PORTS >> /home/panel/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/client.ovpn
+echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/html/client.ovpn
 echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /home/panel/html/client.ovpn
 echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /home/panel/html/client.ovpn
 echo '<ca>' >> /home/panel/html/client.ovpn
