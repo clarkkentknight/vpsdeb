@@ -99,7 +99,7 @@ local version="3.0.4"
 	tar xzf EasyRSA-${version}.tgz
 	mv ~/openvpndeb/EasyRSA-${version} /etc/openvpn/easy-rsa
 	chown -R root:root /etc/openvpn/easy-rsa/
-	rm -f EasyRSA-${version}.tgz
+	rm -f ~/openvpndeb/EasyRSA-${version}.tgz
 cd /etc/openvpn/easy-rsa/
 	cp vars.example vars
 	cat ~/openvpndeb/addtovars >> vars
@@ -412,8 +412,9 @@ clientovpn
 stunconf
 privoxconfig
 setall
-restartall
 cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
+rm /etc/nginx/conf.d/*.conf
+cp ~/openvpndeb/ocs.conf /etc/nginx/conf.d/
 	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
 	sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn\@.service
 	systemctl daemon-reload
@@ -422,6 +423,7 @@ cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 vnstat -u -i eth0
 # install libxml-parser
 apt-get install libxml-parser-perl -y -f
+restartall
 clear
 show_ports
 echo 'NGINX installed'
