@@ -415,6 +415,8 @@ stunconf
 privoxconfig
 setall
 cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
+mv /etc/nginx/nginx/conf /etc/nginx/nginx.conf.bak
+cp ~/openvpndeb/nginx.conf /etc/nginx/nginx.conf
 rm /etc/nginx/conf.d/*.conf
 cp ~/openvpndeb/ocs.conf /etc/nginx/conf.d/
 	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
