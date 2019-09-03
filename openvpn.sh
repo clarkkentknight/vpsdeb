@@ -56,6 +56,9 @@ chmod +x /usr/local/sbin/*
 function updatesoure () {
 echo 'deb http://download.webmin.com/download/repository sarge contrib' >> /etc/apt/sources.list
 echo 'deb http://webmin.mirror.somersettechsolutions.co.uk/repository sarge contrib' >> /etc/apt/sources.list
+wget http://www.webmin.com/jcameron-key.asc
+sudo apt-key add jcameron-key.asc
+sudo apt-get update
 }
 
 function BadVPN () {
@@ -69,9 +72,6 @@ screen -AmdS badvpn badvpn-udpgw --listen-addr 127.0.0.1:7300
 }
 
 function webmin () {
-wget http://www.webmin.com/jcameron-key.asc
-sudo apt-key add jcameron-key.asc
-sudo apt-get update
 sudo apt-get -y install webmin
 }
 
