@@ -320,7 +320,7 @@ function installQuestions () {
 		#done
 	#fi
 	echo ""
-	echo "What port do you want OpenVPN to listen to?""$IP"
+	echo 'Your IP is '"$IP" ' What port do you want OpenVPN to listen to?'
 	echo "   1) Default: 1194"
 	echo "   2) Custom"
 	echo "   3) Random [49152-65535]"
