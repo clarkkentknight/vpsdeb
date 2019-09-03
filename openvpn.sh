@@ -305,6 +305,7 @@ service dropbear restart
 
 function installQuestions () {
 # Detect public IPv4 address and pre-fill for the user
+	apt install -y sudo
 	EXT_INT=$(cut -d' ' -f5 <(ip -4 route ls default))
 	IP=$(ip -4 addr ls $EXT_INT | head -2 | tail -1 | cut -d' ' -f6 | cut -d'/' -f1)
 	# If $IP is a private IP address, the server must be behind NAT
