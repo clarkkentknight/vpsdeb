@@ -220,6 +220,7 @@ script-security 2
 cipher none
 setenv CLIENT_CERT 0
 auth none" >> /etc/openvpn/client.txt
+mkdir -p /home/panel/html
 cp /etc/openvpn/client.txt /home/panel/html/client.ovpn
 echo 'http-proxy' $IP $PORTS >> /home/panel/html/client.ovpn
 echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/client.ovpn
