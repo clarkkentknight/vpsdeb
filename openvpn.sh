@@ -405,8 +405,8 @@ installall
 settime
 copymenu
 updatesoure
-BadVPN
 webmin
+BadVPN
 dropssl
 certandkey
 endropstun
