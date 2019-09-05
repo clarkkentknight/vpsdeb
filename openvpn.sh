@@ -1,5 +1,6 @@
 #!/bin/bash
 #OpenVPN server installer for Debian 9
+clear
 function rootako () {
 	if [ "$EUID" -ne 0 ]; then
 		return 1
@@ -438,17 +439,25 @@ apt-get install libxml-parser-perl -y -f
 restartall
 clear
 show_ports
+echo "======================================================="
+echo "======================================================="
 echo 'NGINX installed'
 echo 'DROPBEAR and STUNNEL installed'
 echo 'PRIVOXY installed'
 echo 'WEBMIN installed'
 echo 'OPENVPN server installed'
+echo "======================================================="
+echo "======================================================="
 cat /etc/banner
+echo "======================================================="
+echo "======================================================="
 echo 'The configuration file is available at /home/panel/html/SunTuConfig.ovpn'
 echo 'Or http://'"$IP"':88/SunTuConfig.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
 echo 'Use menu to create accounts'
 echo 'OCS panel http://'"$IP"':88'
 echo 'Openvpn Monitoring http://'"$IP"':89'
+echo "======================================================="
+echo "======================================================="
 history -c
 exit 0
