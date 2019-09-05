@@ -441,13 +441,6 @@ clear
 show_ports
 echo "======================================================="
 echo "======================================================="
-echo 'NGINX installed'
-echo 'DROPBEAR and STUNNEL installed'
-echo 'PRIVOXY installed'
-echo 'WEBMIN installed'
-echo 'OPENVPN server installed'
-echo "======================================================="
-echo "======================================================="
 cat /etc/banner
 echo "======================================================="
 echo "======================================================="
