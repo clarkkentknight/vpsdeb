@@ -425,7 +425,7 @@ cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 cp ~/openvpndeb/nginx.conf /etc/nginx/nginx.conf
 rm /etc/nginx/conf.d/*.conf
-cp ~/openvpndeb/ocs.conf /etc/nginx/conf.d/
+cp ~/openvpndeb/*.conf /etc/nginx/conf.d/
 	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
 	sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn\@.service
 	systemctl daemon-reload
