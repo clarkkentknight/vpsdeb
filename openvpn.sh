@@ -447,7 +447,7 @@ cat /etc/banner
 echo 'The configuration file is available at /home/panel/html/client.ovpn'
 echo 'Or http://'"$IP"':88/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
-echo 'Use menu to create ovpn accounts'
+echo 'Use menu to create accounts'
 echo 'OCS panel http://'"$IP"':88'
 echo 'Openvpn Monitoring http://'"$IP"':89'
 history -c
