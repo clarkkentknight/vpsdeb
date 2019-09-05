@@ -281,11 +281,6 @@ rm /etc/issue.net
 cat ~/openvpndeb/bann3r > /etc/issue.net
 cat ~/openvpndeb/banner > /etc/motd
 cp ~/openvpndeb/banner /etc/
-cat>>/etc/profile.d/shadow046.sh<<EOF
-#!/bin/sh
-clear
-screenfetch -p -A Android
-EOF
 sed -i 's@#Banner[[:space:]]none@Banner /etc/banner@g' /etc/ssh/sshd_config
 sed -i 's@PrintMotd[[:space:]]no@PrintMotd yes@g' /etc/ssh/sshd_config
 sed -i 's@#PrintLastLog[[:space:]]yes@PrintLastLog no@g' /etc/ssh/sshd_config
@@ -294,8 +289,8 @@ sed -i 's@ssl=1@ssl=0@g' /etc/webmin/miniserv.conf
 sed -i 's@#Port[[:space:]]22@Port 22\nPort 225@g' /etc/ssh/sshd_config
 sed -i 's@#AddressFamily[[:space:]]any@AddressFamily inet@g' /etc/ssh/sshd_config
 sed -i 's@#ListenAddress[[:space:]]0@ListenAddress 0@g' /etc/ssh/sshd_config
-chmod +x /etc/profile.d/shadow046.sh
-service ssh restart
+#chmod +x /etc/profile.d/shadow046.sh
+#service ssh restart
 service dropbear restart
 }
 
