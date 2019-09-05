@@ -130,6 +130,7 @@ persist-key
 persist-tun
 status openvpn-status.log
 log openvpn.log
+management "$IP" 7505
 verb 3
 ncp-disable
 cipher none
@@ -263,6 +264,7 @@ EOF
 }
 
 function restartall () {
+service uwsgi restart
 service nginx restart
 service vnstat restart
 service dropbear restart
@@ -379,9 +381,25 @@ function installQuestions () {
 function installall () {
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
-		apt-get install openvpn iptables openssl wget ca-certificates curl gnupg nginx privoxy squid3 vnstat ufw build-essential -y
+		apt-get install openvpn iptables openssl wget ca-certificates curl gnupg telnet telnetd nginx privoxy squid3 vnstat ufw build-essential -y
 	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
 	sysctl --system
+}
+
+function monitoring () {
+apt-get install -y gcc libgeoip-dev python-virtualenv python-dev geoip-database-extra uwsgi uwsgi-plugin-python geoipupdate
+cd /srv
+git clone https://github.com/furlongm/openvpn-monitor.git
+cd openvpn-monitor
+virtualenv .
+. bin/activate
+pip install -r requirements.txt
+cp openvpn-monitor.conf.example openvpn-monitor.conf
+sed -i "s@host=localhost@host=$IP@g" openvpn-monitor.conf
+sed -i 's@port=5555@host=7505@g' openvpn-monitor.conf
+cd ~/openvpndeb/
+cp openvpn-monitor.ini /etc/uwsgi/apps-available/
+ln -s /etc/uwsgi/apps-available/openvpn-monitor.ini /etc/uwsgi/apps-enabled/
 }
 
 initialCheck
@@ -402,6 +420,7 @@ clientovpn
 stunconf
 privoxconfig
 setall
+monitoring
 cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 cp ~/openvpndeb/nginx.conf /etc/nginx/nginx.conf
