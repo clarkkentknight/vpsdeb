@@ -448,5 +448,6 @@ echo 'Or http://'"$IP"':88/client.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
 echo 'Use menu to create ovpn accounts'
 echo 'OCS panel http://'"$IP"':88'
+echo 'Openvpn Monitoring http://'"$IP"':88/monitoring'
 history -c
 exit 0
