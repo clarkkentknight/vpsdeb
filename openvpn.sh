@@ -207,14 +207,14 @@ cipher none
 setenv CLIENT_CERT 0
 auth none" >> /etc/openvpn/client.txt
 mkdir -p /home/panel/html
-cp /etc/openvpn/client.txt /home/panel/html/client.ovpn
-echo 'http-proxy' $IP $PORTS >> /home/panel/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /home/panel/html/client.ovpn
-echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /home/panel/html/client.ovpn
-echo '<ca>' >> /home/panel/html/client.ovpn
-cat /etc/openvpn/ca.crt >> /home/panel/html/client.ovpn
-echo '</ca>' >> /home/panel/html/client.ovpn
+cp /etc/openvpn/client.txt /home/panel/html/SunTuConfig.ovpn
+echo 'http-proxy' $IP $PORTS >> /home/panel/html/SunTuConfig.ovpn
+echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/html/SunTuConfig.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /home/panel/html/SunTuConfig.ovpn
+echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /home/panel/html/SunTuConfig.ovpn
+echo '<ca>' >> /home/panel/html/SunTu50.ovpn
+cat /etc/openvpn/ca.crt >> /home/panel/html/SunTuConfig.ovpn
+echo '</ca>' >> /home/panel/html/SunTuConfig.ovpn
 }
 
 function stunconf () {
@@ -444,8 +444,8 @@ echo 'PRIVOXY installed'
 echo 'WEBMIN installed'
 echo 'OPENVPN server installed'
 cat /etc/banner
-echo 'The configuration file is available at /home/panel/html/client.ovpn'
-echo 'Or http://'"$IP"':88/client.ovpn'
+echo 'The configuration file is available at /home/panel/html/SunTuConfig.ovpn'
+echo 'Or http://'"$IP"':88/SunTuConfig.ovpn'
 echo "Download the .ovpn file and import it in your OpenVPN client."
 echo 'Use menu to create accounts'
 echo 'OCS panel http://'"$IP"':88'
