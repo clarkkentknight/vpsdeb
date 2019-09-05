@@ -396,7 +396,7 @@ virtualenv .
 pip install -r requirements.txt
 cp openvpn-monitor.conf.example openvpn-monitor.conf
 sed -i "s@host=localhost@host=$IP@g" openvpn-monitor.conf
-sed -i 's@port=5555@host=7505@g' openvpn-monitor.conf
+sed -i 's@port=5555@port=7505@g' openvpn-monitor.conf
 cd ~/openvpndeb/
 cp openvpn-monitor.ini /etc/uwsgi/apps-available/
 ln -s /etc/uwsgi/apps-available/openvpn-monitor.ini /etc/uwsgi/apps-enabled/
