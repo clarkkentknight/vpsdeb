@@ -94,26 +94,11 @@ ln -fs /usr/share/zoneinfo/Asia/Manila /etc/localtime
 }
 
 function certandkey () {
-local version="3.0.4"
-	wget https://github.com/OpenVPN/easy-rsa/releases/download/v${version}/EasyRSA-${version}.tgz
-	tar xzf EasyRSA-${version}.tgz
-	mv ~/openvpndeb/EasyRSA-${version} /etc/openvpn/easy-rsa
-	chown -R root:root /etc/openvpn/easy-rsa/
-	rm -f ~/openvpndeb/EasyRSA-${version}.tgz
-cd /etc/openvpn/easy-rsa/
-	cp vars.example vars
-	cat ~/openvpndeb/addtovars >> vars
-	./easyrsa init-pki
-	./easyrsa --batch build-ca nopass
-	cp pki/ca.crt /etc/openvpn/
-	./easyrsa --batch gen-req server nopass
-	cp pki/private/server.key /etc/openvpn/
-	cp pki/reqs/server.req /etc/openvpn/
-	./easyrsa --batch sign-req server server
-	cp pki/issued/server.crt /etc/openvpn/
-	./easyrsa gen-dh
-	cp pki/dh.pem /etc/openvpn/
-cd ~/openvpndeb/
+	cp ~/openvpndeb/ca.crt /etc/openvpn/
+	cp ~/openvpndeb/server.key /etc/openvpn/
+	cp ~/openvpndeb/server.req /etc/openvpn/
+	cp ~/openvpndeb/server.crt /etc/openvpn/
+	cp ~/openvpndeb/dh.pem /etc/openvpn/
 }
 
 function serverconf () {
