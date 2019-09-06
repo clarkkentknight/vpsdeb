@@ -183,7 +183,7 @@ echo "client" > /etc/openvpn/client-template.txt
 	if [[ "$PROTOCOL" = 'udp' ]]; then
 		echo "proto udp" >> /etc/openvpn/client-template.txt
 	elif [[ "$PROTOCOL" = 'tcp' ]]; then
-		echo "proto tcp-client" >> /etc/openvpn/client-template.txt
+		echo "proto tcp" >> /etc/openvpn/client-template.txt
 	fi
 	echo "remote $IP $PORT
 dev tun
@@ -205,7 +205,8 @@ redirect-gateway def1
 script-security 2
 cipher none
 setenv CLIENT_CERT 0
-setenv opt block-outside-dns # Prevent Windows 10 DNS leak
+#uncomment below for windows 10
+#setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 auth none" >> /etc/openvpn/client-template.txt
 mkdir -p /home/panel/html
 cp /etc/openvpn/client-template.txt /home/panel/html/SunTuConfig.ovpn
