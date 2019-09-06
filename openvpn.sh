@@ -206,6 +206,7 @@ redirect-gateway def1
 script-security 2
 cipher none
 setenv CLIENT_CERT 0
+setenv opt block-outside-dns # Prevent Windows 10 DNS leak
 auth none" >> /etc/openvpn/client.txt
 mkdir -p /home/panel/html
 cp /etc/openvpn/client.txt /home/panel/html/SunTuConfig.ovpn
