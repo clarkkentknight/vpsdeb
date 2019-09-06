@@ -179,7 +179,7 @@ WantedBy=multi-user.target" > /etc/systemd/system/iptables-openvpn.service
 }
 
 function clientovpn () {
-echo "client" > /etc/openvpn/client.txt
+echo "client" > /etc/openvpn/client-template.txt
 	if [[ "$PROTOCOL" = 'udp' ]]; then
 		echo "proto udp" >> /etc/openvpn/client-template.txt
 	elif [[ "$PROTOCOL" = 'tcp' ]]; then
@@ -187,7 +187,6 @@ echo "client" > /etc/openvpn/client.txt
 	fi
 	echo "remote $IP $PORT
 dev tun
-proto tcp
 auth-user-pass
 persist-key
 persist-tun
@@ -207,9 +206,9 @@ script-security 2
 cipher none
 setenv CLIENT_CERT 0
 setenv opt block-outside-dns # Prevent Windows 10 DNS leak
-auth none" >> /etc/openvpn/client.txt
+auth none" >> /etc/openvpn/client-template.txt
 mkdir -p /home/panel/html
-cp /etc/openvpn/client.txt /home/panel/html/SunTuConfig.ovpn
+cp /etc/openvpn/client-template.txt /home/panel/html/SunTuConfig.ovpn
 echo 'http-proxy' $IP $PORTS >> /home/panel/html/SunTuConfig.ovpn
 echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/html/SunTuConfig.ovpn
 echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /home/panel/html/SunTuConfig.ovpn
