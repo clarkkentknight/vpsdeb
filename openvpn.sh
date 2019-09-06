@@ -213,7 +213,7 @@ echo 'http-proxy' $IP $PORTS >> /home/panel/html/SunTuConfig.ovpn
 echo 'http-proxy-option CUSTOM-HEADER ""' >> /home/panel/html/SunTuConfig.ovpn
 echo 'http-proxy-option CUSTOM-HEADER "POST https://viber.com HTTP/1.1"' >> /home/panel/html/SunTuConfig.ovpn
 echo 'http-proxy-option CUSTOM-HEADER "X-Forwarded-For: viber.com"' >> /home/panel/html/SunTuConfig.ovpn
-echo '<ca>' >> /home/panel/html/SunTu50.ovpn
+echo '<ca>' >> /home/panel/html/SunTuConfig.ovpn
 cat /etc/openvpn/ca.crt >> /home/panel/html/SunTuConfig.ovpn
 echo '</ca>' >> /home/panel/html/SunTuConfig.ovpn
 }
@@ -385,7 +385,7 @@ function installQuestions () {
 function installall () {
 	NIC=$(ip -4 route ls | grep default | grep -Po '(?<=dev )(\S+)' | head -1)
 		apt-get update
-		apt-get install openvpn iptables openssl wget ca-certificates curl screenfecth gnupg telnet telnetd nginx privoxy squid3 vnstat ufw build-essential -y
+		apt-get install openvpn iptables openssl wget ca-certificates curl screenfetch gnupg telnet telnetd nginx privoxy squid3 vnstat ufw build-essential -y
 	echo 'net.ipv4.ip_forward=1' >> /etc/sysctl.d/20-openvpn.conf
 	sysctl --system
 }
