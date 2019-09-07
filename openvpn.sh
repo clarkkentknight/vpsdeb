@@ -426,14 +426,15 @@ stunconf
 privoxconfig
 setall
 monitoring
+sed -i 's|LimitNPROC|#LimitNPROC|g' /lib/systemd/system/openvpn@.service
 cp /lib/systemd/system/openvpn\@.service /etc/systemd/system/openvpn\@.service
 mv /etc/nginx/nginx.conf /etc/nginx/nginx.conf.bak
 cp ~/openvpndeb/nginx.conf /etc/nginx/nginx.conf
 rm /etc/nginx/conf.d/*.conf
 cp ~/openvpndeb/ocs.conf /etc/nginx/conf.d/
 cp ~/openvpndeb/monitoring.conf /etc/nginx/conf.d/
-	sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
-	sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn\@.service
+	#sed -i 's|LimitNPROC|#LimitNPROC|' /etc/systemd/system/openvpn\@.service
+	#sed -i 's|/etc/openvpn/server|/etc/openvpn|' /etc/systemd/system/openvpn\@.service
 	systemctl daemon-reload
 	systemctl restart openvpn@server
 	systemctl enable openvpn@server
