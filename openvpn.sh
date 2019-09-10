@@ -131,7 +131,7 @@ persist-key
 persist-tun
 status openvpn-status.log
 log openvpn.log
-#management "$IP" 7505
+management 127.0.0.1 7505
 verb 3
 ncp-disable
 cipher none
@@ -400,7 +400,7 @@ virtualenv .
 . bin/activate
 pip install -r requirements.txt
 cp openvpn-monitor.conf.example openvpn-monitor.conf
-sed -i "s@host=localhost@host=$IP@g" openvpn-monitor.conf
+sed -i "s@host=localhost@host=127.0.0.1@g" openvpn-monitor.conf
 sed -i 's@port=5555@port=7505@g' openvpn-monitor.conf
 cd ~/openvpndeb/
 cp openvpn-monitor.ini /etc/uwsgi/apps-available/
