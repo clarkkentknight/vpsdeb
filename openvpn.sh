@@ -392,7 +392,7 @@ function installall () {
 }
 
 function monitoring () {
-apt-get install -y gcc libgeoip-dev python-virtualenv python-dev geoip-database-extra uwsgi uwsgi-plugin-python geoipupdate
+apt-get install -y gcc libgeoip-dev python-virtualenv python-dev geoip-database-extra uwsgi uwsgi-plugin-python
 cd /srv
 git clone https://github.com/furlongm/openvpn-monitor.git
 cd openvpn-monitor
