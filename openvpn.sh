@@ -131,7 +131,7 @@ persist-key
 persist-tun
 status openvpn-status.log
 log openvpn.log
-management "$IP" 7505
+#management "$IP" 7505
 verb 3
 ncp-disable
 cipher none
